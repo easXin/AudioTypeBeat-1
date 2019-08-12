@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 	// get filename from command line
 	if (argc < 2) {
 	  printf("No wave file specified\n");
-	  return;
+	  return 1;
 	}
 
 	strcat(filename, "/");
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
  header.format_type = buffer2[0] | (buffer2[1] << 8);
  char format_name[10] = "";
  if (header.format_type == 1)
-   strcpy(format_name,"PCM");
+  strcpy(format_name,"PCM");
  else if (header.format_type == 6)
   strcpy(format_name, "A-law");
  else if (header.format_type == 7)
