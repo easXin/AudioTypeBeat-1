@@ -12,7 +12,7 @@ char* seconds_to_time(float raw_seconds);
 int main(int argc, char *argv[])
 {
   /* Load the audio format data if function is called successfully*/
-  if (SDL_LoadWAV("kendrick.wav", &wav_spec, &wav_buffer, &wav_length) == NULL) {
+  if (SDL_LoadWAV(argv[1], &wav_spec, &wav_buffer, &wav_length) == NULL) {
       fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
   } else {
       /* Do stuff with the WAV data, and then... */
