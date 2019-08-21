@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
-SDL_AudioSpec wav_spec;
+volatile int keeprunning = 1;
+SDL_AudioDeviceID device;
+SDL_AudioSpec wav_spec, have;
 Uint32 wav_length;
 Uint8 *wav_buffer;
 char* seconds_to_time(float raw_seconds);
@@ -12,6 +13,7 @@ char* seconds_to_time(float raw_seconds);
 int main(int argc, char *argv[])
 {
   /* Load the audio format data if function is called successfully*/
+  SDL_Init(SDL_INIT_AUDIO);
   if (SDL_LoadWAV(argv[1], &wav_spec, &wav_buffer, &wav_length) == NULL) {
       fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
   } else {
@@ -39,8 +41,21 @@ int main(int argc, char *argv[])
       printf("%d bits per sample\n", bitsize);
       char *time = seconds_to_time(seconds);
       puts(time);
+
+      device = SDL_OpenAudioDevice(NULL, 0, &wav_spec, NULL, 0);
+      if(device == 0){
+        SDL_Log("Failed to open audio: %s", SDL_GetError());
+        return 1;
+    }
+
+      int success = SDL_QueueAudio(device, wav_buffer, wav_length);
+      SDL_PauseAudioDevice(device, 0);
+      while(wav_length > 0 && keeprunning);
+      SDL_CloseAudioDevice(device);
       SDL_FreeWAV(wav_buffer);
+      SDL_Quit();
   }
+
 
   return 1;
 
