@@ -8,6 +8,9 @@ SDL_AudioDeviceID device;
 SDL_AudioSpec wav_spec, have;
 Uint32 wav_length;
 Uint8 *wav_buffer;
+int minutes,tot_seconds = 0;
+double seconds2 = 0.0;
+double n_samples = 0.0;
 char* seconds_to_time(float raw_seconds);
 // SDL_AudioFormat fmt;
 int main(int argc, char *argv[])
@@ -31,6 +34,8 @@ int main(int argc, char *argv[])
       }
 
       int bitsize = (int) SDL_AUDIO_BITSIZE(wav_spec.format);
+      printf("%d bits per sample\n", bitsize);
+
       int bitrate = (wav_spec.freq)*wav_spec.channels*bitsize;
       float byerate = bitrate/8;
       printf("ByteRate = %f\n",byerate);
@@ -38,22 +43,35 @@ int main(int argc, char *argv[])
       float seconds = wav_length/byerate;
       printf("seconds = %f\n", seconds);
 
-      printf("%d bits per sample\n", bitsize);
       char *time = seconds_to_time(seconds);
       puts(time);
 
       device = SDL_OpenAudioDevice(NULL, 0, &wav_spec, NULL, 0);
+
       if(device == 0){
         SDL_Log("Failed to open audio: %s", SDL_GetError());
         return 1;
     }
 
+    n_samples = wav_length;
+    n_samples /= (bitsize/8);
+    n_samples /= wav_spec.channels;
+    seconds2 = n_samples / wav_spec.freq;
+    minutes = seconds / 60;
+    tot_seconds = (int)seconds%60;
+
+    printf("\n%02d:%02d\n", minutes, tot_seconds);
+    fflush(stdout);
+
       int success = SDL_QueueAudio(device, wav_buffer, wav_length);
       SDL_PauseAudioDevice(device, 0);
-      while(wav_length > 0 && keeprunning);
+      // while(wav_length > 0 && keeprunning);
+      SDL_Delay(seconds * 1000);
       SDL_CloseAudioDevice(device);
-      SDL_FreeWAV(wav_buffer);
-      SDL_Quit();
+  EXIT:
+    SDL_FreeWAV(wav_buffer);
+    SDL_Quit();
+    printf("%s\n","Exiting......");
   }
 
 
